@@ -359,7 +359,7 @@ function agentSvg(a) {
 // el.innerHTML = agentSvg(AGENTS[0]);
 ```
 
-Source: `<your-project-path>` SIDEBAR_ICON_DATA. The 8-column mirror is
+Source: your dashboard's `SIDEBAR_ICON_DATA`. The 8-column mirror is
 intentional — input is 4 cols, the renderer reflects across the y-axis.
 
 
@@ -443,6 +443,6 @@ for m in modules:
   validate. Lint each generated file individually with
   `npx hyperframes lint compositions/m3.html` to isolate.
 
-**Battle-tested in:** `<your-project-path>`
+**Battle-tested in:** a production guided-video build
 (6 module beats × ~150 lines each = generated in <1s, hand-tweaked once after).
 

@@ -329,7 +329,7 @@ hyperframes-helper/
     ├── recipes.md                    ← copy-paste pattern library (10 recipes)
     ├── silence-cut.sh                ← Step 01 / Pass A: ffmpeg silence trim
     ├── transcribe-whisper.py         ← Step 01 / Pass B: faster-whisper transcript
-    └── cut-retakes.py                ← Step 01 / Pass <your-project-path> last-take-rule retake removal
+    └── cut-retakes.py                ← Step 01 / Pass C: last-take-rule retake removal
 ```
 
 For Level 3's globe motion graphic, you'll also want the [Natural Earth land geometry](https://raw.githubusercontent.com/martynafford/natural-earth-geojson/refs/heads/master/110m/physical/ne_110m_land.json). Download it, wrap as `window.NE_LAND = ...;` in a `.js` file, and drop into your composition's `assets/` folder.

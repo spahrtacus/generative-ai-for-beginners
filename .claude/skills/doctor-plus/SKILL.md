@@ -1,16 +1,11 @@
 ---
 name: doctor-plus
-description: Runs Claude Code's built-in /doctor health check, then audits the workspace against the 6 then-and-now context-engineering shifts Anthropic shipped with the Claude 5 models (rules to judgement, examples to interfaces, upfront to progressive disclosure, repeats to tool descriptions, CLAUDE.md memory to auto-memory, simple specs to rich references). Reports findings first, fixes only on approval. Triggers on "/doctor-plus", "doctor plus", "doctor-plus", "extended doctor", "then and now audit", "context checkup".
+description: Runs Claude Code's built-in /doctor health check, then audits the workspace against the 6 then-and-now context-engineering shifts from Anthropic's context-engineering guidance (rules to judgement, examples to interfaces, upfront to progressive disclosure, repeats to tool descriptions, CLAUDE.md memory to auto-memory, simple specs to rich references). Reports findings first, fixes only on approval. Triggers on "/doctor-plus", "doctor plus", "doctor-plus", "extended doctor", "extended checkup", "then and now audit", "context checkup".
 ---
 
 # Doctor Plus
 
-The standard /doctor checkup, plus a workspace audit for the 6 then & now shifts from Anthropic's context-engineering article (Thariq @trq212, Jul 2026 - they cut ~80% of the Claude Code system prompt for the Claude 5 models). Read the article if a check needs the original reasoning: https://x.com/trq212/status/2080710971228918066
-
-## Trigger Phrases
-- "/doctor-plus", "doctor plus"
-- "run the extended checkup"
-- "then and now audit", "context checkup"
+The standard /doctor checkup, plus a workspace audit for the 6 then & now shifts from Anthropic's context-engineering article. Read the article if a check needs the original reasoning: https://x.com/trq212/status/2080710971228918066
 
 ## The 6 shifts (the principles part 2 audits against)
 

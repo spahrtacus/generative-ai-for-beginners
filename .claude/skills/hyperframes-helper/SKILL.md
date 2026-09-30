@@ -191,9 +191,9 @@ Each pattern has a copy-paste recipe in `templates/recipes.md`.
 
 ---
 
-## Critical Framework Rules (lint gotchas)
+## Framework Rules and Gotchas
 
-These are non-negotiable — every one corresponds to a Hyperframes lint error you WILL hit if you skip:
+Each rule carries its reason. Some fail `npx hyperframes@latest lint` outright (the ones naming a lint error); the rest break frame seeking, audio, or layering in preview and render.
 
 1. **Every timed element needs `class="clip"` + `data-start` + `data-duration` + `data-track-index`.** No exceptions.
 
@@ -305,7 +305,7 @@ Two renders can run in parallel — Hyperframes spawns 5–6 worker Chrome proce
 
 ## Recipes
 
-`templates/recipes.md` ships 10 copy-paste patterns. Reach for them once you've got the basics:
+`templates/recipes.md` ships 11 copy-paste patterns. Reach for them once you've got the basics:
 
 1. **Liquid glass card** — frosted iOS-style backdrop blur with sheen and refraction
 2. **Pulse border** — single-color rotating gradient on the card edge
@@ -317,6 +317,7 @@ Two renders can run in parallel — Hyperframes spawns 5–6 worker Chrome proce
 8. **Corner notes** — status / counter / brand pill chrome
 9. **D3 globe** — wireframe earth with halftone dots, transparent canvas
 10. **Pixel-art icon row** — sample row of small character icons (8×8 pixel grid)
+11. **Python module generator** — parameterise one composition, emit N similar slides
 
 ## Files in this kit
 
@@ -325,11 +326,11 @@ hyperframes-helper/
 ├── SKILL.md                          ← this file
 └── templates/
     ├── composition-template.html     ← scaffold: tokens, hex mesh, GSAP, watermark
-    ├── storyboard-template.html      ← Level 2 storyboard, 5-scene starter
-    ├── recipes.md                    ← copy-paste pattern library (10 recipes)
+    ├── storyboard-template.html      ← Level 2 storyboard, 4-scene starter
+    ├── recipes.md                    ← copy-paste pattern library (11 recipes)
     ├── silence-cut.sh                ← Step 01 / Pass A: ffmpeg silence trim
     ├── transcribe-whisper.py         ← Step 01 / Pass B: faster-whisper transcript
-    └── cut-retakes.py                ← Step 01 / Pass <your-project-path> last-take-rule retake removal
+    └── cut-retakes.py                ← Step 01 / Pass C: last-take-rule retake removal
 ```
 
 For Level 3's globe motion graphic, you'll also want the [Natural Earth land geometry](https://raw.githubusercontent.com/martynafford/natural-earth-geojson/refs/heads/master/110m/physical/ne_110m_land.json). Download it, wrap as `window.NE_LAND = ...;` in a `.js` file, and drop into your composition's `assets/` folder.

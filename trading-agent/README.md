@@ -59,3 +59,18 @@ set -a; . ./.env; set +a; python -m tradeagent.loop   # paper, real Jev
 8. **AgenKit unverified.** I couldn't confirm agenkit.xyz exists or what it does. `docs/PLAN.md` gives you the six gated phases regardless of tooling.
 
 **Rule: a system that survives beats one that looks profitable.** Run paper for weeks and testnet for one, then go live small. If the calibration table doesn't line up, the answer is "don't trade", not "tune harder".
+
+---
+
+# desk/: the 6-bot desk (rule-based, human-gated), backtest first
+
+A code version of the @0xNevsky "6-Bot Desk" (X, 2026-09-25), with no Grok needed. Rules: [`desk/DESK_RULES.md`](desk/DESK_RULES.md). Every ambiguity in the article is marked **[DECIDED]**.
+
+```bash
+pip install ccxt
+python -m desk.data --top 50 --since 2023-01-01   # public Binance USDT-M 1H candles + funding -> data/ (no account)
+python -m desk.backtest                           # -> desk_reports/backtest-*.md + trades CSV, both STALE variants
+```
+Locked go/no-go: **≥ 40 trades, win rate ≥ 33%, expectancy ≥ +0.4R, max DD ≤ 20%**. It must pass in-sample **and** out-of-sample.
+Status: engine and tests done (`tests/test_desk.py`). **No real-data result yet.** The build sandbox can't reach Binance, so run the two commands above on your machine.
+Next phases (after a PASS only): live scans on 1H/4H/1D closes → Telegram gate (TAKEN/SKIPPED) → Auditor journal, with a read-only exchange key.

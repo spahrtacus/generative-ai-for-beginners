@@ -3,3 +3,5 @@ research/*.json
 schemas/candidates/*.eval.json
 .env
 __pycache__/
+data/
+desk_reports/

@@ -1,0 +1,4 @@
+# core runs on the stdlib; these are optional per feature
+ccxt>=4.3          # market data + live broker
+anthropic>=1.0     # Opus escalation + nightly schema proposals
+pytest>=8          # tests

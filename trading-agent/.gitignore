@@ -1,0 +1,5 @@
+logs/
+research/*.json
+schemas/candidates/*.eval.json
+.env
+__pycache__/

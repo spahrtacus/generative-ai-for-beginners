@@ -1,0 +1,25 @@
+{
+  "version": "v1.0",
+  "instructions": "You score one crypto market per item from a compact order-book snapshot (fields: mid, spr_bps spread, imb top-5 depth imbalance in [-1,1], micro_bps microprice offset, r1_bps last return, rn_bps return over ~60 ticks, rv_bps realized vol per tick, inv signed inventory/equity, dd drawdown, dpnl day pnl) plus a thesis and its invalidation condition. Judge only what the numbers show over the next ~1 minute. Confidence is your calibrated probability that the chosen value is correct; prefer neutral or low setup_quality when evidence is weak. If the snapshot is consistent with the invalidation condition, set risk_state=reduce.",
+  "fields": {
+    "regime":        {"type": "choice", "values": ["trending", "mean_reverting", "high_vol", "crisis"], "description": "Current short-horizon market regime. crisis = disorderly, gapping, liquidity vanishing."},
+    "direction":     {"type": "choice", "values": ["long", "short", "neutral"], "description": "Side expected to outperform costs (~16 bps round trip) over the next ~1 minute."},
+    "toxic_flow":    {"type": "bool",   "values": [true, false], "description": "True if the book looks like informed/aggressive one-sided flow we would be adversely selected against."},
+    "setup_quality": {"type": "score",  "values": [0, 1, 2, 3], "description": "0 none, 1 weak, 2 tradable, 3 strong and clean."},
+    "risk_state":    {"type": "choice", "values": ["safe", "near_limit", "reduce"], "description": "Given inventory, drawdown and the invalidation condition."}
+  },
+  "finalists": [
+    {
+      "symbol": "BTC/USDT",
+      "thesis": "BASELINE (no fundamental thesis): deepest, cheapest book; used to validate the pipeline and measure Jev calibration on microstructure alone.",
+      "invalidation": "Spread > 10 bps or realized vol spike > 3x its 60-tick average: microstructure signals unreliable.",
+      "status": "baseline"
+    },
+    {
+      "symbol": "ETH/USDT",
+      "thesis": "BASELINE (no fundamental thesis): second-deepest book; same purpose as BTC.",
+      "invalidation": "Spread > 10 bps or realized vol spike > 3x its 60-tick average.",
+      "status": "baseline"
+    }
+  ]
+}

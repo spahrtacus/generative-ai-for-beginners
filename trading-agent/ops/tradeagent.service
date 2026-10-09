@@ -1,0 +1,16 @@
+# systemd unit: 24/7 loop with auto-restart. Copy to /etc/systemd/system/, then:
+#   systemctl daemon-reload && systemctl enable --now tradeagent
+[Unit]
+Description=tradeagent 24/7 loop
+After=network-online.target
+
+[Service]
+WorkingDirectory=/opt/trading-agent
+EnvironmentFile=/opt/trading-agent/.env
+ExecStart=/usr/bin/python3 -m tradeagent.loop
+Restart=always
+RestartSec=10
+# The kill switch file (logs/KILL) survives restarts by design.
+
+[Install]
+WantedBy=multi-user.target

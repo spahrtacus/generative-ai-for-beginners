@@ -23,13 +23,15 @@ Per tick: `exchange book → state_engine (causal, <400 tok) → Jev (1 parallel
 ```bash
 cd trading-agent
 pip install -r requirements.txt
-python -m pytest -q                                   # 25 tests
+python -m pytest -q                                   # 30 tests
 cp .env.example .env                                  # add JEV_API_URL / JEV_API_KEY
 python -m tradeagent.loop --stub                      # paper, live public books, stub reflex (pipeline check)
 set -a; . ./.env; set +a; python -m tradeagent.loop   # paper, real Jev
 ./ops/nightly.sh                                      # review + regime + candidate schema
 ```
-**Before your first Jev run:** check `build_request()` / `extract_fields()` in `tradeagent/jev_client.py` against the API docs in your console.typesafe.ai account. They're the only two functions that know Jev's wire format. Everything else in the repo depends on the typed `JevDecision`.
+**Jev wire format** (confirmed from the console playground, `jev-1.13.0`): `{model, state, questions}` in, `answers.<name>.noul` (P(true)) out. Each typed field is compiled into yes/no **noul** questions (11 per symbol) and decoded back in code. The rules are in `decode_fields()` in `tradeagent/jev_client.py`. **Still needed:** the endpoint URL and auth header. Click `</>` in the playground and set `JEV_API_URL` (plus `JEV_AUTH_HEADER`/`JEV_AUTH_PREFIX` if it isn't `Authorization: Bearer`).
+
+**Cost estimate [estimate]:** about 1–1.5k input tokens per call × 2 symbols every 5 s ≈ 35k calls/day. At the reported $0.042/M input tokens that's roughly $1.50–2/day. Check the console **Usage** page after the first hour and raise `TRADEAGENT_POLL_SECONDS` if needed.
 
 ## Files
 `tradeagent/config.py` limits · `state_engine.py` snapshot · `jev_schema.py` types/validation · `jev_client.py` Jev + stub · `policy.py` gate/Kelly · `risk.py` hard limits · `broker.py` paper/ccxt · `escalation.py` Opus · `loop.py` 24/7 loop · `review/nightly.py` Brier/calibration/propose/promote · `research.py` regime data · `docs/PLAN.md` six phases · `docs/RESEARCH.md` finalist template · `ops/` systemd + cron.

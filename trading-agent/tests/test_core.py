@@ -5,7 +5,7 @@ import pytest
 
 from tradeagent.broker import PaperBroker, Portfolio
 from tradeagent.config import PolicyParams, RiskLimits, Settings
-from tradeagent.jev_client import StubJevClient, build_request, extract_fields
+from tradeagent.jev_client import COMPILE, HttpJevClient, StubJevClient, build_request, decode_fields
 from tradeagent.jev_schema import SchemaError, load_schema, parse_decision
 from tradeagent.loop import Agent, ReplayFeed
 from tradeagent.escalation import NullEscalator
@@ -74,13 +74,82 @@ def test_schema_rejects_bad_values():
         decision(quality=True)
 
 
-def test_active_schema_valid_and_request_roundtrip():
+def test_active_schema_valid_and_request_shape():
     schema = load_schema("schemas/active.json")
-    req = build_request(schema, [snap_at()])
-    assert req["items"][0]["id"] == SYM and "thesis" in req["items"][0]["context"]
-    fake = {"items": [{"id": SYM, "fields": decision().to_dict() | {}}]}
-    fields = extract_fields(fake)[SYM]
-    assert parse_decision(SYM, fields, 1.0, "v").direction.value == "long"
+    req = build_request(schema, snap_at())
+    assert req["model"] == "jev-latest"
+    assert req["state"]["symbol"] == SYM and req["state"]["thesis"]
+    n_q = sum(len(v) for v in COMPILE.values())
+    assert len(req["questions"]) == n_q == 11
+    for q in req["questions"].values():
+        assert q["type"] == "noul" and set(q["criteria"]) == {"true", "false"}
+
+
+# Exact shape returned by the console playground (jev-1.13.0), 2026-10-09.
+PLAYGROUND_RESPONSE = {
+    "model": "jev-1.13.0",
+    "answers": {"new_noul_1": {"type": "noul", "noul": 0.52, "stats": {}}},
+    "usage": {"input_tokens": 288, "output_tokens": 24},
+    "request_id": "playground_example",
+    "evaluation_time_ms": 98.0,
+}
+
+
+def answers(**p):
+    base = {k: 0.1 for qs in COMPILE.values() for k, *_ in qs}
+    base.update(p)
+    return {k: {"type": "noul", "noul": v, "stats": {}} for k, v in base.items()}
+
+
+def test_decode_long_setup():
+    f = decode_fields(answers(regime_trending=0.8, dir_long=0.9, setup_tradable=0.85, setup_strong=0.7))
+    d = parse_decision(SYM, f, 1.0, "v")
+    assert d.regime.value == "trending" and d.direction.value == "long"
+    assert math.isclose(d.direction.confidence, 0.9)
+    assert d.setup_quality.value == 3 and d.risk_state.value == "safe"
+    assert d.toxic_flow.value is False
+
+
+def test_decode_neutral_and_reduce():
+    f = decode_fields(answers(dir_long=0.55, dir_short=0.6, risk_reduce=0.7))
+    assert f["direction"]["value"] == "short"
+    f = decode_fields(answers(dir_long=0.4, dir_short=0.45))
+    assert f["direction"] == {"value": "neutral", "confidence": 0.55}
+    assert decode_fields(answers(risk_reduce=0.7))["risk_state"]["value"] == "reduce"
+
+
+def test_decode_rejects_missing_or_bad():
+    with pytest.raises(KeyError):
+        decode_fields(PLAYGROUND_RESPONSE["answers"])  # missing our questions
+    with pytest.raises(SchemaError):
+        decode_fields(answers(dir_long=1.7))
+
+
+def test_http_client_roundtrip(monkeypatch):
+    client = HttpJevClient("https://example.invalid/v1/evaluate", "XXXX")
+    sent = {}
+
+    def fake_call(payload):
+        sent.update(payload)
+        return {**PLAYGROUND_RESPONSE, "answers": answers(dir_long=0.9, setup_tradable=0.9, regime_trending=0.9)}
+
+    monkeypatch.setattr(client, "_call", fake_call)
+    out = client.decide(load_schema("schemas/active.json"), [snap_at()])
+    d = out[SYM]
+    assert sent["model"] == "jev-latest" and d.direction.value == "long" and d.latency_ms == 98.0
+    assert client.last_meta[SYM]["request_id"] == "playground_example"
+
+
+def test_http_client_fails_closed(monkeypatch):
+    client = HttpJevClient("https://example.invalid/v1/evaluate", "XXXX")
+    monkeypatch.setattr(client, "_call", lambda p: PLAYGROUND_RESPONSE)  # answers missing
+    assert client.decide(load_schema("schemas/active.json"), [snap_at()]) == {SYM: None}
+
+    def boom(p):
+        raise TimeoutError
+
+    monkeypatch.setattr(client, "_call", boom)
+    assert client.decide(load_schema("schemas/active.json"), [snap_at()]) == {SYM: None}
 
 
 # ---------- policy ----------

@@ -53,7 +53,7 @@ class Settings:
     kill_switch_path: str = "logs/KILL"
     jev_api_url: str = ""
     jev_api_key: str = field(default="", repr=False)
-    jev_timeout_s: float = 0.25
+    jev_timeout_s: float = 1.5             # playground eval ~98 ms + network; loop polls every 5 s
     escalation_model: str = "claude-opus-5-5"
     risk: RiskLimits = RiskLimits()
     policy: PolicyParams = PolicyParams()
